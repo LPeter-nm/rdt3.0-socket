@@ -5,32 +5,41 @@ let seqNum = 0;
 
 function calculateChecksum(message) {
     let checksum = 0;
+    // console.log(message);
     for (let i = 0; i < message.length; i++) {
         checksum += message.charCodeAt(i);
     }
     checksum = ~checksum;
-    console.log(checksum)
-    return checksum & 0xFFFF;
+    return checksum;
 }
 
 export function sendMessage(message) {
     const data = `${seqNum}:${message}`;
     const checksum = calculateChecksum(data);
-    const msg = `${seqNum}:${checksum}:${message}`;
+    const msg = {
+        seqNum: seqNum,
+        checksum: checksum,
+        message: message
+    };
 
-    client.send(msg, 41234, 'localhost', (err) => {
+    // Converter o objeto msg em uma string JSON
+    const msgString = JSON.stringify(msg);
+
+    client.send(msgString, 41234, 'localhost', (err) => {
         if (err) {
-            console.error(`Erro ao enviar mensagem: ${err}`);
+            console.log(`Erro ao enviar mensagem: ${err}`);
             client.close();
         } else {
-            console.log(`Cliente UDP enviou: ${msg}`);
+            console.log(`Cliente UDP enviou: ${msgString}`);
         }
     });
 }
 
 client.on('message', (msg, rinfo) => {
     const [ack, receivedSeqNum] = msg.toString();
+    console.log(ack, receivedSeqNum);
     
+    // Aqui ele receberia e verificaria
     if (ack === 'ACK' && parseInt(receivedSeqNum) === seqNum + 1) {
         console.log(`Cliente UDP recebeu ACK para seqNum: ${seqNum}`);
         seqNum++;

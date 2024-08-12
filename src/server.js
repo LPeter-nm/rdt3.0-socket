@@ -8,20 +8,26 @@ function calculateChecksum(message) {
         checksum += message.charCodeAt(i);
     }
     checksum = ~checksum;
-    console.log(checksum)
-    return checksum & 0xFFFF;
+    return checksum;
 }
 
 server.on('message', (msg, rinfo) => {
-    const receivedSeqNum = expectedSeqNum;
-    const checksum = calculateChecksum(msg.toString());
-    const calculatedChecksum = calculateChecksum(`${receivedSeqNum}:${msg.toString()}`);
+    const jsonMsg = msg.toString();
+    
+    // Parse a string JSON para um objeto
+    const receivedMsg = JSON.parse(jsonMsg);
+    
+    // Desestruture o objeto para obter o seqNum, checksum e a mensagem
+    const { seqNum: receivedSeqNum, message, checksum: receivedChecksum } = receivedMsg;
+    const checksum = calculateChecksum(`${receivedSeqNum}:${message}`);
+
 
     console.log(`Servidor UDP recebeu: ${msg} de ${rinfo.address}:${rinfo.port}`);
 
-    if (checksum === calculatedChecksum && receivedSeqNum === expectedSeqNum) {
+    if (checksum === receivedChecksum && receivedSeqNum === expectedSeqNum ) {
         console.log(`Mensagem UDP confirmada com seqNum: ${receivedSeqNum}`);
         expectedSeqNum++;
+    // Aqui a gente criaria um objeto ACK pra mandar 
         server.send(`ACK:${expectedSeqNum}`, rinfo.port, rinfo.address);
     } else {
         console.log(`Erro na mensagem UDP ou checksum incorreto.`);

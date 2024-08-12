@@ -17,6 +17,7 @@ app.post('/send-text', (req, res) => {
     // Aqui, você pode configurar uma lógica para aguardar a resposta do servidor UDP
     // ou enviar uma resposta imediata como antes.
     res.send({ response: 'Mensagem enviada ao servidor UDP, aguardando resposta...' });
+    // return res.send({message: response});
 });
 
 app.listen(3000, () => {
