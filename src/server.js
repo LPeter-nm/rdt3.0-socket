@@ -32,7 +32,8 @@ server.on('message', (msg, rinfo) => {
             console.log(`Erro na mensagem UDP ou checksum incorreto.`);
             server.send(`ACK:${expectedSeqNum}`, rinfo.port, rinfo.address);
         }
-    } else if (receivedMsg.seqNum  = 1) {
+    } 
+    if (receivedMsg.seqNum  = 1) {
         if (checksum === receivedChecksum && receivedSeqNum === expectedSeqNum ) {
             console.log(`Mensagem UDP confirmada com seqNum: ${receivedSeqNum}`);
             receivedMsg.seqNum--;

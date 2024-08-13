@@ -36,11 +36,14 @@ export function sendMessage(message) {
 }
 
 client.on('message', (msg, rinfo) => {
-    const [ack, receivedSeqNum] = msg.toString();
-    console.log(ack, receivedSeqNum);
+    const [a, c, k, points, receivedSeqNum] = msg.toString();
+    const message = {
+        ack: a+c+k,
+        seqNumber: Number(receivedSeqNum)
+    }
     
     // Aqui ele receberia e verificaria
-    if (ack === 'ACK' && parseInt(receivedSeqNum) === seqNum + 1) {
+    if (message.ack === 'ACK' && message.seqNumber === seqNum) {
         console.log(`Cliente UDP recebeu ACK para seqNum: ${seqNum}`);
         seqNum++;
         // Aqui você pode continuar com o próximo envio ou finalizar
