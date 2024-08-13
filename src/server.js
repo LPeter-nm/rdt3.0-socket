@@ -21,18 +21,29 @@ server.on('message', (msg, rinfo) => {
     const { seqNum: receivedSeqNum, message, checksum: receivedChecksum } = receivedMsg;
     const checksum = calculateChecksum(`${receivedSeqNum}:${message}`);
 
-
     console.log(`Servidor UDP recebeu: ${msg} de ${rinfo.address}:${rinfo.port}`);
-
-    if (checksum === receivedChecksum && receivedSeqNum === expectedSeqNum ) {
-        console.log(`Mensagem UDP confirmada com seqNum: ${receivedSeqNum}`);
-        expectedSeqNum++;
-    // Aqui a gente criaria um objeto ACK pra mandar 
-        server.send(`ACK:${expectedSeqNum}`, rinfo.port, rinfo.address);
-    } else {
-        console.log(`Erro na mensagem UDP ou checksum incorreto.`);
-        server.send(`ACK:${expectedSeqNum}`, rinfo.port, rinfo.address);
-    }
+    if(receivedMsg.seqNum = 0){
+        if (checksum === receivedChecksum && receivedSeqNum === expectedSeqNum ) {
+            console.log(`Mensagem UDP confirmada com seqNum: ${receivedSeqNum}`);
+            receivedMsg.seqNum++;
+        // Aqui a gente criaria um objeto ACK pra mandar 
+            server.send(`ACK:${expectedSeqNum}`, rinfo.port, rinfo.address);
+        } else {
+            console.log(`Erro na mensagem UDP ou checksum incorreto.`);
+            server.send(`ACK:${expectedSeqNum}`, rinfo.port, rinfo.address);
+        }
+    } else if (receivedMsg.seqNum  = 1) {
+        if (checksum === receivedChecksum && receivedSeqNum === expectedSeqNum ) {
+            console.log(`Mensagem UDP confirmada com seqNum: ${receivedSeqNum}`);
+            receivedMsg.seqNum--;
+        // Aqui a gente criaria um objeto ACK pra mandar 
+            server.send(`ACK:${expectedSeqNum}`, rinfo.port, rinfo.address);
+        } else {
+            console.log(`Erro na mensagem UDP ou checksum incorreto.`);
+            server.send(`ACK:${expectedSeqNum}`, rinfo.port, rinfo.address);
+        }
+    } 
+    
 });
 
 server.on('error', (err) => {
