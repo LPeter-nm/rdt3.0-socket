@@ -1,17 +1,17 @@
 {
-  "name": "socket",
+  "name": "rdt3",
   "version": "1.0.0",
+  "description": "",
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "send": "node ./src/client.js",
-    "receiver": "node ./src/server.js",
-    "dev": "node ./src/serverInt.js"
+    "sender": "node ./src/sender.js",
+    "receiver": "node ./src/receiver.js",
+    "inter": "node ./src/intermediary"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
