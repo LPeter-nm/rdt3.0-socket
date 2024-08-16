@@ -1,8 +1,13 @@
 import express from 'express';
 import cors from 'cors';
 import { sendMessage } from './sender.js'; // Importa o cliente UDP
-const app = express();
 
+let message 
+export function setReceivedMessage(msg){ // Recebe a mensagem do Receiver
+     message = msg;
+}
+
+const app = express();
 app.use(express.json());
 app.use(cors({
     origin: '*', // ou '*' para permitir todas as origens
@@ -18,6 +23,11 @@ app.post('/send-text', (req, res) => {
     // ou enviar uma resposta imediata como antes.
     res.send({ response: 'Mensagem enviada ao servidor UDP, aguardando resposta...' });
 });
+
+app.get('/send-text', async (req,res) => {
+    res.json({message})
+});
+
 
 app.listen(3000, () => {
     console.log('Servidor intermediário HTTP escutando na porta 3000');

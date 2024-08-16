@@ -33,8 +33,30 @@
             .then(response => response.json())
             .then(data => {
                 document.getElementById("output").innerText = "Resposta do servidor: " + data.response;
+                getText()
             })
             .catch(error => console.error('Erro:', error));
+        }
+
+        function getText(){
+            setTimeout(() => {
+                let inputText = document.getElementById("userInput").value;
+                let upperCaseText = inputText.toUpperCase();
+    
+                fetch('http://localhost:3000/send-text', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data)
+                    document.getElementById("output").innerText = "Resposta do Sender: " + data.message.message;
+                })
+                .catch(error => console.error('Erro:', error));
+
+            }, 10000)
         }
     </script>
 </body>
