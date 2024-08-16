@@ -5,9 +5,9 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "sender": "node ./src/sender.js",
-    "receiver": "node ./src/receiver.js",
-    "inter": "node ./src/intermediary"
+    "sender": "node ./src/rdt_initial/sender.js",
+    "receiver": "node ./src/rdt_initial/receiver.js",
+    "inter": "node ./src/rdt_initial/intermediary.js"
   },
   "keywords": [],
   "author": "",
