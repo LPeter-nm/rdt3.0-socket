@@ -19,4 +19,19 @@ export function sendMessage(message) {
     sender.send(msgString, 41234, 'localhost', () => {
         console.log(`Remetente enviou: ${msgString}`);
     });
+
+    sender.on('message', (msg, rinfo) => {
+        const message = msg.toString();
+
+        setTimeout(() => {
+            if (message == 'ACK') {
+                console.log('Deu tudo certo, próximo')
+            } else if (message == 'NACK' || message == "") {
+                console.log('Certo, então vou falar novamente')
+                sender.send(msgString, rinfo.port, rinfo.address)
+            }
+        }, 4000)
+
+    })
 }
+

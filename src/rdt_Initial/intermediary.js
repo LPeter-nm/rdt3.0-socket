@@ -6,7 +6,7 @@ const app = express();
 app.use(express.json());
 app.use(cors({
     origin: '*', // ou '*' para permitir todas as origens
-  }));
+}));
 
 app.post('/send-text', (req, res) => {
     const { text } = req.body;
