@@ -14,7 +14,6 @@ receiver.on('message', (rcvpkt, rinfo) => {
     if (!seqNum) {
         console.log('Erro de posição do seqNum')
     }
-    console.log(expectedNum)
 
     if (expectedNum == 0) {
         setTimeout(() => {
@@ -75,9 +74,6 @@ receiver.on('message', (rcvpkt, rinfo) => {
     }
 
 })
-
-
-
 
 receiver.bind(41234, () => {
     console.log("Servidor UDP escutando na porta 41234.");
