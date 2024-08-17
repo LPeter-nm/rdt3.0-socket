@@ -1,27 +1,74 @@
 import dgram from 'node:dgram'
-import { calculateChecksum } from './checksum';
+import { calculateChecksum } from './checksum.js';
 const receiver = dgram.createSocket('udp4');
 
 let expectedNum = 0;
-
-function checksumVerify (data, make_pkt){
-    const checksumRcv = calculateChecksum(data);
-    if(checksumRcv != extract.checksum){
-        const make_pkt = {
-            confirm: 'NACK',
-            checksum: checksumRcv
-        }
-        console.log('Os dados foram corrompidos')
-
-        const sndpkt = JSON.stringify(make_pkt)
-        receiver.send(sndpkt, rinfo.port, rinfo.address)
-    }  else {
-        const sndpkt = JSON.stringify(make_pkt)
-        receiver.send(sndpkt, rinfo.port, rinfo.address)
-    }
-}
+let pkt = []
 
 receiver.on('message', (rcvpkt, rinfo) => {
+    const rdt_rcv = rcvpkt.toString();
+    const jsonrdt_rcv = JSON.parse(rdt_rcv);
+    const seqNum = rdt_rcv.slice(10, 11)
+    const checksumRcv = calculateChecksum(jsonrdt_rcv.data);
+
+    if (!seqNum) {
+        console.log('Erro de posição do seqNum')
+    }
+    console.log(expectedNum)
+    setTimeout(() => {
+        if (expectedNum == 0) {
+            if (rdt_rcv && rdt_rcv != '' && Number(seqNum) == 0 && checksumRcv == jsonrdt_rcv.checksum) {
+                const extract = jsonrdt_rcv.data
+                pkt.push(extract);
+                const make_pkt = {
+                    confirm: 'ACK',
+                    seqNum: 0,
+                    checksum: jsonrdt_rcv.checksum
+                }
+
+
+                const sndpkt = JSON.stringify(make_pkt)
+
+                console.log('Mensagem sendo enviada com sucesso')
+                receiver.send(sndpkt, rinfo.port, rinfo.address)
+                expectedNum++;
+            } else if (rdt_rcv && rdt_rcv != '' && Number(seqNum) == 1 || checksumRcv == jsonrdt_rcv.checksum) {
+                const make_pkt = {
+                    confirm: 'ACK',
+                    seqNum: 1,
+                    checksum: jsonrdt_rcv.checksum
+                }
+                const sndpkt = JSON.stringify(make_pkt)
+                console.log('A sequência está incorreta, mas o pacote chegou')
+                receiver.send(sndpkt, rinfo.port, rinfo.address)
+            }
+        } else if (expectedNum == 1) {
+            if (rdt_rcv && rdt_rcv != '' && Number(seqNum) == 1 && checksumRcv == jsonrdt_rcv.checksum) {
+                const extract = jsonrdt_rcv.data
+                pkt.push(extract);
+                const make_pkt = {
+                    confirm: 'ACK',
+                    seqNum: 0,
+                    checksum: jsonrdt_rcv.checksum
+                }
+
+                const sndpkt = JSON.stringify(make_pkt)
+                console.log('Mensagem sendo enviada com sucesso')
+                receiver.send(sndpkt, rinfo.port, rinfo.address);
+                expectedNum--;
+            } else if (rdt_rcv && rdt_rcv != '' && Number(seqNum) == 0 || checksumRcv == jsonrdt_rcv.checksum) {
+                const make_pkt = {
+                    confirm: 'ACK',
+                    seqNum: 0,
+                    checksum: jsonrdt_rcv.checksum
+                }
+                const sndpkt = JSON.stringify(make_pkt)
+                console.log('A sequência está incorreta, mas o pacote chegou')
+                receiver.send(sndpkt, rinfo.port, rinfo.address)
+            }
+        }
+
+    })
 })
 
 receiver.bind(41234, () => {

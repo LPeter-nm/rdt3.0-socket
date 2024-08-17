@@ -22,21 +22,32 @@ export function sendMessage(message) {
 
     sender.on('message', (rcvpkt, rinfo) => {
         const stringMessage = rcvpkt.toString();
-        
+
         const rdt_rcv = JSON.parse(stringMessage);
-    
-        setTimeout(() => { // Timeout
-            if (stringMessage && stringMessage == '' && rdt_rcv.confirm == 'ACK') {
-                if(seqNum == 0){
+        setTimeout(() => {
+            if (seqNum == 0) {
+                console.log(seqNum, rdt_rcv.seqNum)
+                if (rdt_rcv && rdt_rcv.checksum == checksum && rdt_rcv.confirm == 'ACK' && rdt_rcv.seqNum == 0) {
+
+                    console.log('Tudo certo, para o próximo pacote')
                     seqNum++;
-                } else {
-                    seqNum--;
+                } else if (rdt_rcv && rdt_rcv.confirm == 'ACK' && rdt_rcv.seqNum == 1 || rdt_rcv.checksum != checksum) { // Retransmite o pacote.
+                    console.log('Certo, então vou falar novamente');
+                    sender.send(sndpkt, rinfo.port, rinfo.address);
                 }
-            } else{ // Retransmite o pacote.
-                console.log('Certo, então vou falar novamente');
-                sender.send(sndpkt, rinfo.port, rinfo.address);
+            } else if (seqNum == 1) {
+                console.log(seqNum, rdt_rcv.seqNum)
+                if (rdt_rcv && rdt_rcv.checksum == checksum && rdt_rcv.confirm == 'ACK' && rdt_rcv.seqNum == 1) {
+                    console.log('Tudo certo, para o próximo pacote')
+                    seqNum--;
+                } else if (rdt_rcv && rdt_rcv.confirm == 'ACK' && rdt_rcv.seqNum == 0 || rdt_rcv.checksum != checksum) { // Retransmite o pacote.
+                    console.log('Certo, então vou falar novamente');
+                    sender.send(sndpkt, rinfo.port, rinfo.address);
+                }
             }
         }, 3000)
+
+
     });
 }
 
