@@ -3,36 +3,41 @@ import { calculateChecksum } from './checksum.js';
 const sender = dgram.createSocket('udp4')
 
 let seqNum = 0;
-let messageIntermediary 
 
 export function sendMessage(message) {
-    messageIntermediary = message
-    const data = `${seqNum}:${message}`;
-    const checksum = calculateChecksum(data);
-    const msg = {
+    const rdt_send = message;
+    const checksum = calculateChecksum(rdt_send);
+    const make_pkt = {
         seqNum: seqNum,
-        message: message,
+        data: message,
         checksum: checksum
     };
 
     // Converter o objeto msg em uma string JSON
-    const msgString = JSON.stringify(msg);
+    const sndpkt = JSON.stringify(make_pkt);
 
-    sender.send(msgString, 41234, 'localhost', () => {
-        console.log(`Remetente enviou: ${msgString}`);
+    sender.send(sndpkt, 41234, 'localhost', () => {
+        console.log(`Remetente enviou: ${sndpkt}`);
+    });
+
+    sender.on('message', (rcvpkt, rinfo) => {
+        const stringMessage = rcvpkt.toString();
+        
+        const rdt_rcv = JSON.parse(stringMessage);
+    
+        setTimeout(() => { // Timeout
+            if (stringMessage && stringMessage == '' && rdt_rcv.confirm == 'ACK') {
+                if(seqNum == 0){
+                    seqNum++;
+                } else {
+                    seqNum--;
+                }
+            } else{ // Retransmite o pacote.
+                console.log('Certo, então vou falar novamente');
+                sender.send(sndpkt, rinfo.port, rinfo.address);
+            }
+        }, 3000)
     });
 }
 
 
-sender.on('message', (msg, rinfo) => {
-    const message = msg.toString();
-
-    setTimeout(() => { // Timeout
-        if (message == 'ACK') {
-            console.log('Deu tudo certo, próximo')
-        } else{ // Retransmite o pacote.
-            console.log('Certo, então vou falar novamente')
-            sendMessage(messageIntermediary);
-        }
-    }, 4000)
-});
