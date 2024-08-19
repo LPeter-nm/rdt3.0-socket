@@ -1,77 +1,227 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
+<head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Transformar Texto em Maiúsculas</title>
-  </head>
-  <body>
-    <h1>Quantos Caracteres tem minha frase?</h1>
+    <style>
+        /* Reseta alguns estilos padrão do navegador */
+        body, h1, h2, p, form, textarea, button, footer {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Comic Sans MS', cursive, sans-serif; /* Fonte Comic Sans */
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #f0f8ff; /* Cor de fundo suave */
+            color: #333; /* Cor do texto */
+            font-size: 16px;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #ff6347; /* Cor do título principal */
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        form {
+            background: #ffffff; /* Fundo branco para o formulário */
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+            padding: 20px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #555; /* Cor do texto do rótulo */
+        }
+
+        textarea {
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            font-size: 1em;
+            margin-bottom: 10px;
+            resize: vertical; /* Permite redimensionar verticalmente */
+        }
+
+        button {
+            background-color: #ff6347; /* Cor de fundo do botão */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #e5533c; /* Cor de fundo do botão ao passar o mouse */
+        }
+
+        h2 {
+            color: #333; /* Cor do título secundário */
+            font-size: 1.5em;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        p {
+            color: #555; /* Cor do texto */
+            font-size: 1.2em;
+            text-align: center;
+            margin-top: 10px;
+            max-height: 6em; /* Aproximadamente 3 linhas de altura */
+            overflow-y: auto; /* Adiciona barra de rolagem vertical se necessário */
+            padding: 10px; /* Adiciona padding para melhor aparência */
+            border: 1px solid #ccc; /* Adiciona borda ao parágrafo */
+            border-radius: 5px; /* Bordas arredondadas */
+            background-color: #ffffff; /* Fundo branco para o parágrafo */
+            visibility: hidden; /* Inicialmente escondido */
+            opacity: 0; /* Inicialmente invisível */
+            transition: opacity 0.3s ease; /* Transição suave ao aparecer */
+        }
+
+        p.visible {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 1em;
+        }
+
+        .footer-title {
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: #0366d6; /* Cor dos links do GitHub */
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: 1em;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+
+        .github-logo {
+            width: 24px;
+            height: 24px; /* Mantém o mesmo tamanho em altura e largura para criar um círculo */
+            border-radius: 50%; /* Torna a imagem circular */
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+
+        /* Estilo adicional para a exibição do comprimento do texto */
+        #textLength {
+            color: #000000;
+            font-size: 1.5em;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Quantos Caracteres Tem Minha Frase?</h1>
 
     <form id="textForm">
-      <label for="userInput">Digite seu texto:</label><br /><br />
-      <textarea
-        id="userInput"
-        rows="4"
-        cols="50"></textarea
-      ><br /><br />
-      <button
-        type="button"
-        onclick="sendText()">
-        Enviar para Servidor
-      </button>
+        <label for="userInput">Digite seu texto:</label>
+        <textarea id="userInput" rows="4" cols="50"></textarea>
+        <button type="button" onclick="sendText()">Enviar para Servidor</button>
     </form>
 
     <h2>Texto:</h2>
     <p id="output"></p>
+    <div id="textLength"></div> <!-- Adicionado para mostrar o comprimento do texto -->
+
+    <footer>
+        <div class="footer-title">Criadores:</div>
+        <div class="footer-links">
+            <a href="https://github.com/LPeter-nm" target="_blank">
+                <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub Logo" class="github-logo">
+                LPeter-nm
+            </a>
+            <a href="https://github.com/Jhopn" target="_blank">
+                <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub Logo" class="github-logo">
+                Jhopn
+            </a>
+        </div>
+    </footer>
 
     <script>
-      function sendText() {
-        let inputText = document.getElementById('userInput').value;
-        let upperCaseText = inputText.toUpperCase();
+        function sendText() {
+            let inputText = document.getElementById('userInput').value;
+            let upperCaseText = inputText.toUpperCase();
 
-        // Envia o texto transformado para o servidor intermediário via HTTP
-        fetch('http://localhost:3000/send-text', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ text: upperCaseText }),
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            document.getElementById('output').innerText = 'Resposta do servidor: ' + data.response;
-            getText();
-          })
-          .catch((error) => console.error('Erro:', error));
-      }
-
-      // Enviar texto transformado para o HTML via HTTP
-      function getText() {
-        setTimeout(() => {
-          let inputText = document.getElementById('userInput').value;
-          let upperCaseText = inputText.toUpperCase();
-
-          fetch('http://localhost:3000/send-text', {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          })
+            // Envia o texto transformado para o servidor intermediário via HTTP
+            fetch('http://localhost:3000/send-text', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ text: upperCaseText }),
+            })
             .then((response) => response.json())
             .then((data) => {
-              console.log(data);
-              document.getElementById('output').innerText =
-                'Texto Enviado ao Sender: ' +
-                data.message +
-                '\n Quantidade de Carateres: ' +
-                data.lengthMessage;
+                let outputElement = document.getElementById('output');
+                outputElement.innerText = 'Resposta do servidor: ' + data.response;
+                outputElement.classList.add('visible'); // Torna o parágrafo visível
+                getText();
             })
             .catch((error) => console.error('Erro:', error));
-        }, 10000);
-      }
+        }
+
+        // Enviar texto transformado para o HTML via HTTP
+        function getText() {
+            setTimeout(() => {
+                fetch('http://localhost:3000/send-text', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then((response) => response.json())
+                .then((data) => {
+                    let outputElement = document.getElementById('output');
+                    let textLengthElement = document.getElementById('textLength');
+
+                    outputElement.innerText =
+                        'Texto Enviado ao Sender: ' +
+                        data.message;
+                    
+                    textLengthElement.innerText =
+                        'Quantidade de Caracteres: ' +
+                        data.lengthMessage;
+                    
+                    // Atualizar a visibilidade do parágrafo
+                    outputElement.classList.add('visible');
+                })
+                .catch((error) => console.error('Erro:', error));
+            }, 10000);
+        }
     </script>
-  </body>
+</body>
 </html>
