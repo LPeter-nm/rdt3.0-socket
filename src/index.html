@@ -1,63 +1,77 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0" />
     <title>Transformar Texto em Maiúsculas</title>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Quantos Caracteres tem minha frase?</h1>
 
     <form id="textForm">
-        <label for="userInput">Digite seu texto:</label><br><br>
-        <textarea id="userInput" rows="4" cols="50"></textarea><br><br>
-        <button type="button" onclick="sendText()">Enviar para Servidor</button>
+      <label for="userInput">Digite seu texto:</label><br /><br />
+      <textarea
+        id="userInput"
+        rows="4"
+        cols="50"></textarea
+      ><br /><br />
+      <button
+        type="button"
+        onclick="sendText()">
+        Enviar para Servidor
+      </button>
     </form>
 
     <h2>Texto:</h2>
     <p id="output"></p>
 
     <script>
-        function sendText() {
-            let inputText = document.getElementById("userInput").value;
-            let upperCaseText = inputText.toUpperCase();
+      function sendText() {
+        let inputText = document.getElementById('userInput').value;
+        let upperCaseText = inputText.toUpperCase();
 
-            // Enviar texto transformado para o servidor intermediário via HTTP
-            fetch('http://localhost:3000/send-text', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ text: upperCaseText }),
+        // Envia o texto transformado para o servidor intermediário via HTTP
+        fetch('http://localhost:3000/send-text', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ text: upperCaseText }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            document.getElementById('output').innerText = 'Resposta do servidor: ' + data.response;
+            getText();
+          })
+          .catch((error) => console.error('Erro:', error));
+      }
+
+      // Enviar texto transformado para o HTML via HTTP
+      function getText() {
+        setTimeout(() => {
+          let inputText = document.getElementById('userInput').value;
+          let upperCaseText = inputText.toUpperCase();
+
+          fetch('http://localhost:3000/send-text', {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              console.log(data);
+              document.getElementById('output').innerText =
+                'Texto Enviado ao Sender: ' +
+                data.message +
+                '\n Quantidade de Carateres: ' +
+                data.lengthMessage;
             })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("output").innerText = "Resposta do servidor: " + data.response;
-                getText()
-            })
-            .catch(error => console.error('Erro:', error));
-        }
-
-        function getText(){
-            setTimeout(() => {
-                let inputText = document.getElementById("userInput").value;
-                let upperCaseText = inputText.toUpperCase();
-    
-                fetch('http://localhost:3000/send-text', {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data)
-                    document.getElementById("output").innerText = "Texto Enviado ao Sender: " + data.message + "\n Quantidade de Carateres: " + data.lengthMessage;
-                })
-                .catch(error => console.error('Erro:', error));
-
-            }, 10000)
-        }
+            .catch((error) => console.error('Erro:', error));
+        }, 10000);
+      }
     </script>
-</body>
+  </body>
 </html>

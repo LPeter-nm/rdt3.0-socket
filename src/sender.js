@@ -44,15 +44,15 @@ sender.on('message', (rcvpkt, rinfo) => {
         setTimeout(() => {
             if (rdt_rcv && rdt_rcv.checksum == checksum && rdt_rcv.confirm == 'ACK' && rdt_rcv.seqNum == 0) {
                 console.log('Tudo certo, para o próximo pacote')
-                clearTimeout(timeoutHandle); 
+                clearTimeout(timeoutHandle);
                 seqNum++;
             } else if (rdt_rcv && (rdt_rcv.confirm == 'ACK' && rdt_rcv.seqNum == 1 || rdt_rcv.checksum != checksum)) {
                 // Retransmite o pacote.
                 console.log('Certo, então vou falar novamente');
-                clearTimeout(timeoutHandle); 
+                clearTimeout(timeoutHandle);
                 sender.send(sndpkt, rinfo.port, rinfo.address);
             }
-        }, 4000)
+        }, 3000)
 
     } else if (seqNum == 1) {
         setTimeout(() => {
@@ -60,14 +60,14 @@ sender.on('message', (rcvpkt, rinfo) => {
             if (rdt_rcv && (rdt_rcv.confirm == 'ACK' && rdt_rcv.seqNum == 0 || rdt_rcv.checksum != checksum)) {
                 // Retransmite o pacote.
                 console.log('Certo, então vou falar novamente');
-                clearTimeout(timeoutHandle); 
+                clearTimeout(timeoutHandle);
                 sender.send(sndpkt, rinfo.port, rinfo.address);
             } else if (rdt_rcv && rdt_rcv.checksum == checksum && rdt_rcv.confirm == 'ACK' && rdt_rcv.seqNum == 1) {
                 console.log('Tudo certo, para o próximo pacote')
-                clearTimeout(timeoutHandle); 
+                clearTimeout(timeoutHandle);
                 seqNum--;
             }
-        }, 4000)
+        }, 3000)
 
     }
 });

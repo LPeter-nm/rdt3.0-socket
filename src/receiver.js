@@ -28,12 +28,12 @@ receiver.on('message', (rcvpkt, rinfo) => {
                 }
                 const lengthMessage = extract.length;
                 setReceivedMessage(extract, lengthMessage); // Envia a mensagem ao intermediario
-                
+
                 const sndpkt = JSON.stringify(make_pkt)
                 console.log('Mensagem sendo enviada com sucesso')
                 receiver.send(sndpkt, rinfo.port, rinfo.address)
                 expectedNum++;
-            } else if (rdt_rcv && (Number(seqNum) == 1  && pkt.some(pkt => pkt === jsonrdt_rcv.message)|| checksumRcv == jsonrdt_rcv.checksum)) {
+            } else if (rdt_rcv && (Number(seqNum) == 1 && pkt.some(pkt => pkt === jsonrdt_rcv.message) || checksumRcv == jsonrdt_rcv.checksum)) {
                 const make_pkt = {
                     confirm: 'ACK',
                     seqNum: 1,
@@ -43,8 +43,8 @@ receiver.on('message', (rcvpkt, rinfo) => {
                 console.log('A sequência está incorreta, mas o pacote chegou')
                 console.log('Mensagem duplicada detectada, reenviando ACK');
                 receiver.send(sndpkt, rinfo.port, rinfo.address)
-            } 
-        }, 4000)
+            }
+        }, 3000)
 
     } else if (expectedNum == 1) {
         setTimeout(() => {
@@ -73,8 +73,8 @@ receiver.on('message', (rcvpkt, rinfo) => {
                 console.log('A sequência está incorreta, mas o pacote chegou')
                 console.log('Mensagem duplicada detectada, reenviando ACK');
                 receiver.send(sndpkt, rinfo.port, rinfo.address)
-            } 
-        }, 4000)
+            }
+        }, 3000)
 
     }
 

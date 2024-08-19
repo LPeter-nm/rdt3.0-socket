@@ -2,11 +2,11 @@ import express from 'express';
 import cors from 'cors';
 import { sendMessage } from './sender.js'; // Importa o cliente UDP
 
-let message 
+let message
 let lengthMessage
-export function setReceivedMessage(msg, msgLength){ // Recebe a mensagem do Receiver
-     message = msg;
-     lengthMessage = msgLength;
+export function setReceivedMessage(msg, msgLength) { // Recebe a mensagem do Receiver
+    message = msg;
+    lengthMessage = msgLength;
 }
 
 const app = express();
@@ -21,13 +21,11 @@ app.post('/send-text', (req, res) => {
     // Enviar a mensagem para o servidor UDP usando o cliente UDP
     sendMessage(text);
 
-    // Aqui, você pode configurar uma lógica para aguardar a resposta do servidor UDP
-    // ou enviar uma resposta imediata como antes.
     res.send({ response: 'Mensagem enviada ao servidor UDP, aguardando resposta...' });
 });
 
-app.get('/send-text', async (req,res) => {
-    res.json({message, lengthMessage})
+app.get('/send-text', async (req, res) => {
+    res.json({ message, lengthMessage })
 });
 
 
