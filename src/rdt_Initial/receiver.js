@@ -1,5 +1,6 @@
 import dgram from 'node:dgram'
 import { calculateChecksum } from './checksum.js';
+import { setReceivedMessage } from './intermediary.js'
 const receiver = dgram.createSocket('udp4');
 
 let expectedNum = 0;
@@ -25,14 +26,14 @@ receiver.on('message', (rcvpkt, rinfo) => {
                     seqNum: 0,
                     checksum: jsonrdt_rcv.checksum
                 }
-
-
+                const lengthMessage = extract.length;
+                setReceivedMessage(extract, lengthMessage); // Envia a mensagem ao intermediario
+                
                 const sndpkt = JSON.stringify(make_pkt)
-
                 console.log('Mensagem sendo enviada com sucesso')
                 receiver.send(sndpkt, rinfo.port, rinfo.address)
                 expectedNum++;
-            } else if (rdt_rcv && (Number(seqNum) == 1 || checksumRcv == jsonrdt_rcv.checksum)) {
+            } else if (rdt_rcv && (Number(seqNum) == 1  && pkt.some(pkt => pkt === jsonrdt_rcv.message)|| checksumRcv == jsonrdt_rcv.checksum)) {
                 const make_pkt = {
                     confirm: 'ACK',
                     seqNum: 1,
@@ -40,8 +41,9 @@ receiver.on('message', (rcvpkt, rinfo) => {
                 }
                 const sndpkt = JSON.stringify(make_pkt)
                 console.log('A sequência está incorreta, mas o pacote chegou')
+                console.log('Mensagem duplicada detectada, reenviando ACK');
                 receiver.send(sndpkt, rinfo.port, rinfo.address)
-            }
+            } 
         }, 4000)
 
     } else if (expectedNum == 1) {
@@ -54,12 +56,14 @@ receiver.on('message', (rcvpkt, rinfo) => {
                     seqNum: 1,
                     checksum: jsonrdt_rcv.checksum
                 }
+                const lengthMessage = extract.length;
+                setReceivedMessage(extract, lengthMessage); // Envia a mensagem ao intermediario
 
                 const sndpkt = JSON.stringify(make_pkt)
                 console.log('Mensagem sendo enviada com sucesso')
                 receiver.send(sndpkt, rinfo.port, rinfo.address);
                 expectedNum--;
-            } else if (rdt_rcv && (Number(seqNum) == 0 || checksumRcv == jsonrdt_rcv.checksum)) {
+            } else if (rdt_rcv && (Number(seqNum) == 0 && pkt.some(pkt => pkt === jsonrdt_rcv.message) || checksumRcv == jsonrdt_rcv.checksum)) {
                 const make_pkt = {
                     confirm: 'ACK',
                     seqNum: 0,
@@ -67,8 +71,9 @@ receiver.on('message', (rcvpkt, rinfo) => {
                 }
                 const sndpkt = JSON.stringify(make_pkt)
                 console.log('A sequência está incorreta, mas o pacote chegou')
+                console.log('Mensagem duplicada detectada, reenviando ACK');
                 receiver.send(sndpkt, rinfo.port, rinfo.address)
-            }
+            } 
         }, 4000)
 
     }
