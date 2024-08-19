@@ -6,7 +6,7 @@
     <title>Transformar Texto em Maiúsculas</title>
 </head>
 <body>
-    <h1>Transforme seu texto em letras maiúsculas</h1>
+    <h1>Quantos Caracteres tem minha frase?</h1>
 
     <form id="textForm">
         <label for="userInput">Digite seu texto:</label><br><br>
@@ -14,7 +14,7 @@
         <button type="button" onclick="sendText()">Enviar para Servidor</button>
     </form>
 
-    <h2>Texto Transformado:</h2>
+    <h2>Texto:</h2>
     <p id="output"></p>
 
     <script>
@@ -52,7 +52,7 @@
                 .then(response => response.json())
                 .then(data => {
                     console.log(data)
-                    document.getElementById("output").innerText = "Resposta do Sender: " + data.message.message;
+                    document.getElementById("output").innerText = "Texto Enviado ao Sender: " + data.message + "\n Quantidade de Carateres: " + data.lengthMessage;
                 })
                 .catch(error => console.error('Erro:', error));
 

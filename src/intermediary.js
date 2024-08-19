@@ -3,8 +3,10 @@ import cors from 'cors';
 import { sendMessage } from './sender.js'; // Importa o cliente UDP
 
 let message 
-export function setReceivedMessage(msg){ // Recebe a mensagem do Receiver
+let lengthMessage
+export function setReceivedMessage(msg, msgLength){ // Recebe a mensagem do Receiver
      message = msg;
+     lengthMessage = msgLength;
 }
 
 const app = express();
@@ -25,7 +27,7 @@ app.post('/send-text', (req, res) => {
 });
 
 app.get('/send-text', async (req,res) => {
-    res.json({message})
+    res.json({message, lengthMessage})
 });
 
 
