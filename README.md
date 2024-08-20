@@ -34,7 +34,15 @@ Instale as bibliotecas do projeto com npm
 ```bash
   npm install 
 ```
+## Rodando os testes
 
+Para rodar os testes, rode o seguinte comando
+
+```bash
+  npm run receiver
+```
+
+Agora, abra o HTML na sua máquina e faça o preenchimento do site com o texto e, em seguida, aperte no botão e aguarde a resposta.
 
 ## Stack utilizada
 
