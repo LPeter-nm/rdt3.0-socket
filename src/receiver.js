@@ -74,6 +74,9 @@ receiver.on('message', (rcvpkt, rinfo) => {
 
                 // Envia o pacote de confirmação para o remetente
                 receiver.send(sndpkt, rinfo.port, rinfo.address);
+            } else if (rdt_rcv == '') {
+                console.log('Pacote não recebido || envie novamente')
+                receiver.close();
             }
         }, 3000); // Espera 3 segundos para processar a resposta
 
@@ -125,6 +128,9 @@ receiver.on('message', (rcvpkt, rinfo) => {
 
                 // Envia o pacote de confirmação para o remetente
                 receiver.send(sndpkt, rinfo.port, rinfo.address);
+            } else if (rdt_rcv == '') {
+                console.log('Pacote não recebido || envie novamente')
+                receiver.close();
             }
         }, 3000); // Espera 3 segundos para processar a resposta
     }

@@ -9,7 +9,15 @@ let seqNum = 0;
 let sndpkt; // Pacote que será enviado
 let checksum; // Checksum para verificar a integridade dos dados
 let timeoutHandle; // Identificador do timeout para retransmissão
+let make_pkt; // JSON do pacote que terá seqNum, data e checksum
 
+function pktNull() {
+    make_pkt = ''
+}
+
+function dataCorrupted() {
+    checksum = 'corrupted data'
+}
 // Função para enviar uma mensagem ao destinatário
 export function sendMessage(message) {
     // Mensagem que será enviada
@@ -19,11 +27,20 @@ export function sendMessage(message) {
     checksum = calculateChecksum(rdt_send);
 
     // Cria o pacote com número de sequência, dados e checksum
-    const make_pkt = {
+    make_pkt = {
         seqNum: seqNum,
         data: message,
         checksum: checksum
     };
+
+    // Simulação de perda de dados
+    // pktNull();
+    // sender.send(make_pkt, 41234, 'localhost', () => {
+    //     console.log(`Remetente enviou: ${sndpkt}`);
+
+
+    //     startTimeout(make_pkt);
+    // });
 
     // Converte o objeto do pacote em uma string JSON
     sndpkt = JSON.stringify(make_pkt);
@@ -61,6 +78,9 @@ sender.on('message', (rcvpkt, rinfo) => {
 
     // Parseia a mensagem JSON recebida de volta para um objeto
     const rdt_rcv = JSON.parse(stringMessage);
+
+    // simulação de corrupção de dados
+    // dataCorrupted();
 
     // Verifica o número de sequência atual
     if (seqNum == 0) {
