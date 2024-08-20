@@ -21,6 +21,28 @@ Reliable Data Protocol 3.0 (RDT) é um protocolo com uma abordagem para garantir
 
 - Número de Sequência: Pacotes são numerados para que o receptor possa identificar e reorganizar pacotes que chegam fora de ordem e detectar pacotes duplicados.
 
+## Instalação
+
+Clone ou baixe o repositório na sua máquina.
+
+```bash
+  git clone link_do_repositório
+```
+
+Instale as bibliotecas do projeto com npm
+
+```bash
+  npm install 
+```
+## Rodando os testes
+
+Para rodar os testes, rode o seguinte comando
+
+```bash
+  npm run receiver
+```
+
+Agora, abra o HTML na sua máquina e faça o preenchimento do site com o texto e, em seguida, aperte no botão e aguarde a resposta.
 
 ## Stack utilizada
 
@@ -40,3 +62,4 @@ Redes de computadores e a Internet uma Abordagem Top-Down
 
 - [@Pedro Gabriel](https://github.com/LPeter-nm/)
 - [@Jhoão Pedro](https://github.com/Jhopn/)
+
