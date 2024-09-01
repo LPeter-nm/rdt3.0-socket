@@ -11,8 +11,12 @@ let checksum; // Checksum para verificar a integridade dos dados
 let timeoutHandle; // Identificador do timeout para retransmissão
 let make_pkt; // JSON do pacote que terá seqNum, data e checksum
 
-function pktNull() {
-    make_pkt = ''
+function pktNull(seqNum, checksum) {
+    make_pkt = {
+        seqNum: seqNum,
+        data: "",
+        checksum: checksum
+    }
 }
 
 function dataCorrupted() {
@@ -34,21 +38,17 @@ export function sendMessage(message) {
     };
 
     // Simulação de perda de dados
-    // pktNull();
-    // sender.send(make_pkt, 41234, 'localhost', () => {
-    //     console.log(`Remetente enviou: ${sndpkt}`);
-
-
-    //     startTimeout(make_pkt);
-    // });
+    // pktNull(seqNum, checksum);
 
     // Converte o objeto do pacote em uma string JSON
     sndpkt = JSON.stringify(make_pkt);
 
     // Envia o pacote para o destinatário via UDP
     sender.send(sndpkt, 41234, 'localhost', () => {
+        console.log('======== Remetente em ação ========')
         console.log(`Remetente enviou: ${sndpkt}`);
 
+        console.log('---- Temporizador iniciado ----')
         // Inicia o temporizador para retransmissão caso o ACK não seja recebido
         startTimeout(sndpkt);
     });
@@ -61,6 +61,7 @@ function startTimeout(pkt) {
 
     // Define o timeout para retransmitir o pacote após 10 segundos, se necessário
     timeoutHandle = setTimeout(() => {
+        console.log('======== Remetente em ação ========')
         console.log('Timeout! Retransmitindo o pacote...');
 
         // Retransmite o pacote
@@ -73,6 +74,7 @@ function startTimeout(pkt) {
 
 // Evento disparado quando uma mensagem é recebida no socket UDP
 sender.on('message', (rcvpkt, rinfo) => {
+    console.log('======== Remetente em ação ========')
     // Converte a mensagem recebida de volta para string
     const stringMessage = rcvpkt.toString();
 
@@ -87,7 +89,13 @@ sender.on('message', (rcvpkt, rinfo) => {
         setTimeout(() => {
             // Verifica se o pacote foi recebido corretamente
             if (rdt_rcv && rdt_rcv.checksum == checksum && rdt_rcv.confirm == 'ACK' && rdt_rcv.seqNum == 0) {
-                console.log('Tudo certo, para o próximo pacote');
+                console.log('------- Mensagem recebida --------')
+                console.log(`Confirmação: ${rdt_rcv.confirm}`)
+                console.log(`Sequência: ${rdt_rcv.seqNum}`)
+                console.log(`Checksum: ${rdt_rcv.checksum}`)
+
+                console.log('----------------------------------')
+                console.log('Tudo certo para o próximo pacote\n');
 
                 // Cancela o timeout de retransmissão, pois o pacote foi confirmado
                 clearTimeout(timeoutHandle);
@@ -97,21 +105,42 @@ sender.on('message', (rcvpkt, rinfo) => {
             }
             // Se o pacote não foi confirmado corretamente, retransmite
             else if (rdt_rcv && (rdt_rcv.confirm == 'ACK' && rdt_rcv.seqNum == 1 || rdt_rcv.checksum != checksum)) {
-                console.log('Certo, então vou falar novamente');
+                console.log('------- Mensagem corrompida --------')
+
+                console.log('--- Checksum e seqNum esperados ---')
+                console.log(`Checksum: ${checksum}`)
+                console.log(`Sequência: ${seqNum}`)
+
+                console.log('--- Checksum e seqNum recebidos ---')
+                console.log(`Checksum: ${rdt_rcv.checksum}`)
+                console.log(`Sequência: ${rdt_rcv.seqNum}`)
+
+                console.log('----------------------------------------')
+                console.log('Reenvio de pacote...\n');
                 clearTimeout(timeoutHandle);
 
                 // Retransmite o pacote
                 sender.send(sndpkt, rinfo.port, rinfo.address);
             }
-        }, 3000) // Espera 3 segundos para processar a resposta
-
+        }, 3000) // Espera 3 segundos para processar a resposta -> somente para observar o processo mais lentamente
     }
     // Caso o número de sequência seja 1
     else if (seqNum == 1) {
         setTimeout(() => {
             // Verifica se o pacote foi recebido corretamente
             if (rdt_rcv && (rdt_rcv.confirm == 'ACK' && rdt_rcv.seqNum == 0 || rdt_rcv.checksum != checksum)) {
-                console.log('Certo, então vou falar novamente');
+                console.log('------- Mensagem corrompida --------')
+
+                console.log('--- Checksum e seqNum esperados ---')
+                console.log(`Checksum: ${checksum}`)
+                console.log(`Sequência: ${seqNum}`)
+
+                console.log('--- Checksum e seqNum recebidos ---')
+                console.log(`Checksum: ${rdt_rcv.checksum}`)
+                console.log(`Sequência: ${rdt_rcv.seqNum}`)
+
+                console.log('----------------------------------------')
+                console.log('Reenvio de pacote...\n');
                 clearTimeout(timeoutHandle);
 
                 // Retransmite o pacote
@@ -119,11 +148,16 @@ sender.on('message', (rcvpkt, rinfo) => {
             }
             // Se o pacote foi confirmado corretamente, decrementar o número de sequência
             else if (rdt_rcv && rdt_rcv.checksum == checksum && rdt_rcv.confirm == 'ACK' && rdt_rcv.seqNum == 1) {
-                console.log('Tudo certo, para o próximo pacote');
+                console.log('------- Mensagem recebida --------')
+                console.log(`Confirmação: ${rdt_rcv.confirm}`)
+                console.log(`Sequência: ${rdt_rcv.seqNum}`)
+                console.log(`Checksum: ${rdt_rcv.checksum}`)
+
+                console.log('----------------------------------')
+                console.log('Tudo certo para o próximo pacote\n');
                 clearTimeout(timeoutHandle);
                 seqNum--;
             }
-        }, 3000) // Espera 3 segundos para processar a resposta
-
+        }, 3000) // Espera 3 segundos para processar a resposta -> somente para observar o processo mais lentamente
     }
 });

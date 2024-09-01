@@ -10,6 +10,7 @@ let pkt = [] // Array para armazenar pacotes recebidos
 
 // Evento disparado quando uma mensagem é recebida no socket UDP
 receiver.on('message', (rcvpkt, rinfo) => {
+    console.log('======== Destinatário em ação ========')
     // Converte o pacote recebido para uma string
     const rdt_rcv = rcvpkt.toString();
 
@@ -32,6 +33,11 @@ receiver.on('message', (rcvpkt, rinfo) => {
         setTimeout(() => {
             // Verifica se o pacote recebido é o esperado e se o checksum é válido
             if (rdt_rcv && Number(seqNum) == 0 && checksumRcv == jsonrdt_rcv.checksum) {
+                console.log('------- Mensagem recebida sem erro --------')
+                console.log(`Sequência: ${jsonrdt_rcv.seqNum}`)
+                console.log(`Mensagem: ${jsonrdt_rcv.data}`)
+                console.log(`Checksum: ${jsonrdt_rcv.checksum}`)
+
                 const extract = jsonrdt_rcv.data;
 
                 // Adiciona o pacote ao array de pacotes recebidos
@@ -50,7 +56,8 @@ receiver.on('message', (rcvpkt, rinfo) => {
 
                 // Converte o pacote de confirmação para uma string JSON
                 const sndpkt = JSON.stringify(make_pkt);
-                console.log('Mensagem sendo enviada com sucesso');
+                console.log('-------------------------------------------')
+                console.log('Mensagem sendo enviada...\n');
 
                 // Envia o pacote de confirmação para o remetente
                 receiver.send(sndpkt, rinfo.port, rinfo.address);
@@ -60,6 +67,8 @@ receiver.on('message', (rcvpkt, rinfo) => {
             }
             // Caso o número de sequência seja 1 ou o pacote tenha sido recebido anteriormente
             else if (rdt_rcv && (Number(seqNum) == 1 && pkt.some(pkt => pkt === jsonrdt_rcv.message) || checksumRcv == jsonrdt_rcv.checksum)) {
+                console.log('---- Sequência incorreta ----')
+                console.log(`Sequência: ${jsonrdt_rcv.seqNum}`)
                 // Cria um pacote de confirmação para retransmissão
                 const make_pkt = {
                     confirm: 'ACK',
@@ -70,15 +79,15 @@ receiver.on('message', (rcvpkt, rinfo) => {
                 // Converte o pacote de confirmação para uma string JSON
                 const sndpkt = JSON.stringify(make_pkt);
                 console.log('A sequência está incorreta, mas o pacote chegou');
-                console.log('Mensagem duplicada detectada, reenviando ACK');
+                console.log('Mensagem duplicada detectada, reenviando ACK\n');
 
                 // Envia o pacote de confirmação para o remetente
                 receiver.send(sndpkt, rinfo.port, rinfo.address);
-            } else if (rdt_rcv == '') {
-                console.log('Pacote não recebido || envie novamente')
-                receiver.close();
+
+                // Volta ao 1 para que o pacote seja enviado na sequência certa
+                expectedNum++
             }
-        }, 3000); // Espera 3 segundos para processar a resposta
+        }, 3000); // Espera 3 segundos para processar a resposta -> somente para observar o processo mais lentamente
 
     }
     // Verifica se o número de sequência esperado é 1
@@ -86,6 +95,11 @@ receiver.on('message', (rcvpkt, rinfo) => {
         setTimeout(() => {
             // Verifica se o pacote recebido é o esperado e se o checksum é válido
             if (rdt_rcv && Number(seqNum) == 1 && checksumRcv == jsonrdt_rcv.checksum) {
+                console.log('------- Mensagem recebida sem erro --------')
+                console.log(`Sequência: ${jsonrdt_rcv.seqNum}`)
+                console.log(`Mensagem: ${jsonrdt_rcv.data}`)
+                console.log(`Checksum: ${jsonrdt_rcv.checksum}`)
+
                 const extract = jsonrdt_rcv.data;
 
                 // Adiciona o pacote ao array de pacotes recebidos
@@ -104,7 +118,8 @@ receiver.on('message', (rcvpkt, rinfo) => {
 
                 // Converte o pacote de confirmação para uma string JSON
                 const sndpkt = JSON.stringify(make_pkt);
-                console.log('Mensagem sendo enviada com sucesso');
+                console.log('-------------------------------------------')
+                console.log('Mensagem sendo enviada...\n');
 
                 // Envia o pacote de confirmação para o remetente
                 receiver.send(sndpkt, rinfo.port, rinfo.address);
@@ -114,6 +129,8 @@ receiver.on('message', (rcvpkt, rinfo) => {
             }
             // Caso o número de sequência seja 0 ou o pacote tenha sido recebido anteriormente
             else if (rdt_rcv && (Number(seqNum) == 0 && pkt.some(pkt => pkt === jsonrdt_rcv.message) || checksumRcv == jsonrdt_rcv.checksum)) {
+                console.log('---- Sequência incorreta ----')
+                console.log(`Sequência: ${jsonrdt_rcv.seqNum}`)
                 // Cria um pacote de confirmação para retransmissão
                 const make_pkt = {
                     confirm: 'ACK',
@@ -124,15 +141,15 @@ receiver.on('message', (rcvpkt, rinfo) => {
                 // Converte o pacote de confirmação para uma string JSON
                 const sndpkt = JSON.stringify(make_pkt);
                 console.log('A sequência está incorreta, mas o pacote chegou');
-                console.log('Mensagem duplicada detectada, reenviando ACK');
+                console.log('Mensagem duplicada detectada, reenviando ACK\n');
 
                 // Envia o pacote de confirmação para o remetente
                 receiver.send(sndpkt, rinfo.port, rinfo.address);
-            } else if (rdt_rcv == '') {
-                console.log('Pacote não recebido || envie novamente')
-                receiver.close();
+
+                // Volta ao 0 para que o pacote seja enviado na sequência certa
+                expectedNum--
             }
-        }, 3000); // Espera 3 segundos para processar a resposta
+        }, 3000); // Espera 3 segundos para processar a resposta -> somente para observa o processo mais lentamente 
     }
 
 })
