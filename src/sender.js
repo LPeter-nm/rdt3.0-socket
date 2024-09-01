@@ -48,9 +48,10 @@ export function sendMessage(message) {
         console.log('======== Remetente em ação ========')
         console.log(`Remetente enviou: ${sndpkt}`);
 
-        console.log('---- Temporizador iniciado ----')
+        console.log('Temporizador iniciado...')
         // Inicia o temporizador para retransmissão caso o ACK não seja recebido
         startTimeout(sndpkt);
+        console.log('\n')
     });
 }
 

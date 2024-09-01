@@ -213,8 +213,17 @@
     <script>
       // Função que captura o texto, transforma em maiúsculas e envia para o servidor
       function sendText() {
+        // Função para capitalizar apenas a primeira letra da string
+        function capitalizeFirstLetter(str) {
+          // Verifica se a string não está vazia ou indefinida
+          if (!str) return str;
+
+          // Transforma a primeira letra em maiúscula e concatena com o restante da string
+          return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
         let inputText = document.getElementById('userInput').value;
-        let upperCaseText = inputText.toUpperCase();
+        let formatedText = capitalizeFirstLetter(inputText);
 
         // Envia o texto transformado para o servidor intermediário via HTTP
         fetch('http://localhost:3000/send-text', {
@@ -222,7 +231,7 @@
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ text: upperCaseText }),
+          body: JSON.stringify({ text: formatedText }),
         })
           .then((response) => response.json())
           .then((data) => {
