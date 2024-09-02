@@ -28,6 +28,10 @@ receiver.on('message', (rcvpkt, rinfo) => {
         console.log('Erro de posição do seqNum');
     }
 
+    if(jsonrdt_rcv.data === ""){
+        console.log("Pacotes sem dados!");
+    } 
+
     // Verifica se o número de sequência esperado é 0
     if (expectedNum == 0) {
         setTimeout(() => {

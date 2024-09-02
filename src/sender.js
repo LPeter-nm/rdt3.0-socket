@@ -10,6 +10,7 @@ let sndpkt; // Pacote que será enviado
 let checksum; // Checksum para verificar a integridade dos dados
 let timeoutHandle; // Identificador do timeout para retransmissão
 let make_pkt; // JSON do pacote que terá seqNum, data e checksum
+let timeoutLimit = 0;
 
 function pktNull(seqNum, checksum) {
     make_pkt = {
@@ -22,6 +23,21 @@ function pktNull(seqNum, checksum) {
 function dataCorrupted() {
     checksum = 'corrupted data'
 }
+
+function execErrorDataCorrupted() {
+    const numRandom =  Math.random() >= 0.5; // Gera true ou false
+    if (numRandom) {
+        dataCorrupted();
+    } 
+}
+
+function execErrorPktNull(seqNum, checksum) {
+    const numRandom =  Math.random() >= 0.5; // Gera true ou false
+    if (numRandom) {
+        pktNull(seqNum, checksum);
+    } 
+}
+
 // Função para enviar uma mensagem ao destinatário
 export function sendMessage(message) {
     // Mensagem que será enviada
@@ -38,6 +54,7 @@ export function sendMessage(message) {
     };
 
     // Simulação de perda de dados
+    // execErrorPktNull(seqNum, checksum);
     // pktNull(seqNum, checksum);
 
     // Converte o objeto do pacote em uma string JSON
@@ -50,27 +67,34 @@ export function sendMessage(message) {
 
         console.log('Temporizador iniciado...')
         // Inicia o temporizador para retransmissão caso o ACK não seja recebido
-        startTimeout(sndpkt);
+        startTimeout();
         console.log('\n')
     });
 }
 
 // Função para iniciar o timeout e retransmitir o pacote se necessário
-function startTimeout(pkt) {
+function startTimeout() {
     // Limpa qualquer timeout anterior antes de iniciar um novo
-    clearTimeout(timeoutHandle);
-
-    // Define o timeout para retransmitir o pacote após 10 segundos, se necessário
-    timeoutHandle = setTimeout(() => {
-        console.log('======== Remetente em ação ========')
-        console.log('Timeout! Retransmitindo o pacote...');
-
-        // Retransmite o pacote
-        sender.send(pkt, 41234, 'localhost');
-
-        // Reinicia o temporizador após a retransmissão
-        startTimeout();
-    }, 10000); // 10 segundos de timeout
+    if(timeoutLimit === 3){ // Quantidade limite de retransmissões dos dados
+        clearTimeout(timeoutHandle);
+        timeoutLimit = 0;
+        console.log('Limite de retransmissões atingido!');
+    } else{
+        clearTimeout(timeoutHandle);
+    
+        // Define o timeout para retransmitir o pacote após 10 segundos, se necessário
+        timeoutHandle = setTimeout(() => {
+            console.log('======== Remetente em ação ========')
+            console.log('Timeout! Retransmitindo o pacote...');
+    
+            // Retransmite o pacote
+            sender.send(sndpkt, 41234, 'localhost');
+    
+            // Reinicia o temporizador após a retransmissão
+            timeoutLimit++;
+            startTimeout();
+        }, 10000); // 10 segundos de timeout
+    }
 }
 
 // Evento disparado quando uma mensagem é recebida no socket UDP
@@ -83,6 +107,7 @@ sender.on('message', (rcvpkt, rinfo) => {
     const rdt_rcv = JSON.parse(stringMessage);
 
     // simulação de corrupção de dados
+    // execErrorDataCorrupted();
     // dataCorrupted();
 
     // Verifica o número de sequência atual
