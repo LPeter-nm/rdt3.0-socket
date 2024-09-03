@@ -170,7 +170,7 @@ sender.on('message', (rcvpkt, rinfo) => {
                 // Retransmite o pacote
                 sender.send(sndpkt, rinfo.port, rinfo.address);
             }
-        }, 3000) // Espera 3 segundos para processar a resposta -> somente para observar o processo mais lentamente
+        }, 2000) // Espera 2 segundos para processar a resposta -> somente para observar o processo mais lentamente
     }
     // Caso o número de sequência seja 1
     else if (seqNum == 1) {
@@ -216,6 +216,6 @@ sender.on('message', (rcvpkt, rinfo) => {
                 clearTimeout(timeoutHandle);
                 seqNum--;
             }
-        }, 3000) // Espera 3 segundos para processar a resposta -> somente para observar o processo mais lentamente
+        }, 2000) // Espera 2 segundos para processar a resposta -> somente para observar o processo mais lentamente
     }
 });

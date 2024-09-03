@@ -12,6 +12,7 @@ let pkt = [] // Array para armazenar pacotes recebidos
 
 function pktNull(rdt_rcv) {
     if(errorLimit >= 2){
+        errorLimit = 0
         setReceivedMessage(rdt_rcv.data, rdt_rcv.data.length);
         return 'Limite atingido';
     }
@@ -24,6 +25,7 @@ function pktNull(rdt_rcv) {
 
 function dataCorrupted(rdt_rcv) {
     if(errorLimit >= 2){
+        errorLimit = 0
         setReceivedMessage(rdt_rcv.data, rdt_rcv.data.length);
         return 'Limite atingido';
     }
@@ -44,14 +46,15 @@ function dataCorrupted(rdt_rcv) {
 // Evento disparado quando uma mensagem é recebida no socket UDP
 receiver.on('message', (rcvpkt, rinfo) => {
     console.log('======== Destinatário em ação ========')
+    
     // Converte o pacote recebido para uma string
     const rdt_rcv = rcvpkt.toString();
-
+    
     // Converte a string JSON para um objeto
     const jsonrdt_rcv = JSON.parse(rdt_rcv);
 
     // Simulação de pacote nulo
-    // pktNull(jsonrdt_rcv);
+    pktNull(jsonrdt_rcv);
 
     // Extrai o número de sequência do pacote
     const seqNum = rdt_rcv.slice(10, 11);
@@ -68,7 +71,7 @@ receiver.on('message', (rcvpkt, rinfo) => {
     // dataCorrupted(jsonrdt_rcv);
 
     // Verifica se o número de sequência esperado é 0
-    if (expectedNum == 0) {
+    if (expectedNum == 0) {  
         setTimeout(() => {
             // Verifica se o pacote recebido é o esperado e se o checksum é válido
             if (rdt_rcv && Number(seqNum) == 0 && checksumRcv == jsonrdt_rcv.checksum) {
@@ -128,7 +131,7 @@ receiver.on('message', (rcvpkt, rinfo) => {
                 // Envia o pacote de confirmação para o remetente
                 receiver.send(sndpkt, rinfo.port, rinfo.address);
             }
-        }, 3000); // Espera 3 segundos para processar a resposta -> somente para observar o processo mais lentamente
+        }, 2000); // Espera 2 segundos para processar a resposta -> somente para observar o processo mais lentamente
 
     }
     // Verifica se o número de sequência esperado é 1
@@ -169,7 +172,7 @@ receiver.on('message', (rcvpkt, rinfo) => {
                 expectedNum--;
             }
             // Caso o número de sequência seja 0 ou o pacote tenha sido recebido anteriormente
-            else if (rdt_rcv && (Number(seqNum) == 0 && pkt.some(pkt => pkt === jsonrdt_rcv.message) || checksumRcv != jsonrdt_rcv.checksum)) {
+            if (rdt_rcv && (Number(seqNum) == 0 && pkt.some(pkt => pkt === jsonrdt_rcv.message) || checksumRcv != jsonrdt_rcv.checksum)) {
                 console.log('---- Pacote corrompido ou sequência incorreta ----')
                 console.log('--- Checksum e seqNum esperados ---')
                 console.log(`Checksum: ${checksumRcv}`)
@@ -192,7 +195,7 @@ receiver.on('message', (rcvpkt, rinfo) => {
                 // Envia o pacote de confirmação para o remetente
                 receiver.send(sndpkt, rinfo.port, rinfo.address);
             }
-        }, 3000); // Espera 3 segundos para processar a resposta -> somente para observa o processo mais lentamente 
+        }, 2000); // Espera 2 segundos para processar a resposta -> somente para observa o processo mais lentamente 
     }
 
 })
