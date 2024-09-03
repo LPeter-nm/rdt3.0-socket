@@ -6,6 +6,7 @@ const sender = dgram.createSocket('udp4')
 
 // Número de sequência do pacote, usado para rastrear a ordem dos pacotes enviados
 let seqNum = 0;
+let messageHist; // Historico de mensagem
 let sndpkt; // Pacote que será enviado
 let checksum; // Checksum para verificar a integridade dos dados
 let timeoutHandle; // Identificador do timeout para retransmissão
@@ -41,6 +42,7 @@ function execErrorPktNull(seqNum, checksum) {
 // Função para enviar uma mensagem ao destinatário
 export function sendMessage(message) {
     // Mensagem que será enviada
+    messageHist = message;
     const rdt_send = message;
 
     // Calcula o checksum da mensagem
@@ -55,7 +57,7 @@ export function sendMessage(message) {
 
     // Simulação de perda de dados
     // execErrorPktNull(seqNum, checksum);
-    // pktNull(seqNum, checksum);
+    pktNull(seqNum, checksum);
 
     // Converte o objeto do pacote em uma string JSON
     sndpkt = JSON.stringify(make_pkt);
@@ -81,6 +83,16 @@ function startTimeout() {
         console.log('Limite de retransmissões atingido!');
     } else{
         clearTimeout(timeoutHandle);
+
+        make_pkt = {
+            seqNum: seqNum,
+            data: messageHist,
+            checksum: checksum
+        };
+
+        // execErrorPktNull();
+
+        sndpkt = JSON.stringify(make_pkt);
     
         // Define o timeout para retransmitir o pacote após 10 segundos, se necessário
         timeoutHandle = setTimeout(() => {
@@ -145,6 +157,16 @@ sender.on('message', (rcvpkt, rinfo) => {
                 console.log('Reenvio de pacote...\n');
                 clearTimeout(timeoutHandle);
 
+                make_pkt = {
+                    seqNum: seqNum,
+                    data: messageHist,
+                    checksum: checksum
+                };
+        
+                // execErrorPktNull();
+        
+                sndpkt = JSON.stringify(make_pkt);
+
                 // Retransmite o pacote
                 sender.send(sndpkt, rinfo.port, rinfo.address);
             }
@@ -168,6 +190,16 @@ sender.on('message', (rcvpkt, rinfo) => {
                 console.log('----------------------------------------')
                 console.log('Reenvio de pacote...\n');
                 clearTimeout(timeoutHandle);
+
+                make_pkt = {
+                    seqNum: seqNum,
+                    data: messageHist,
+                    checksum: checksum
+                };
+        
+                // execErrorPktNull();
+        
+                sndpkt = JSON.stringify(make_pkt);
 
                 // Retransmite o pacote
                 sender.send(sndpkt, rinfo.port, rinfo.address);
