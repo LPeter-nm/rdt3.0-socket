@@ -54,7 +54,7 @@ receiver.on('message', (rcvpkt, rinfo) => {
     const jsonrdt_rcv = JSON.parse(rdt_rcv);
 
     // Simulação de pacote nulo
-    pktNull(jsonrdt_rcv);
+    // pktNull(jsonrdt_rcv);
 
     // Extrai o número de sequência do pacote
     const seqNum = rdt_rcv.slice(10, 11);
